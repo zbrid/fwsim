@@ -1,3 +1,3 @@
 #!/bin/bash
 
-scala -cp ~/repos/hanabi/classes HanabiSimulator
+scala -cp ~/repos/fwsim/classes HanabiSimulator
