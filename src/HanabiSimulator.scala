@@ -76,13 +76,6 @@ class HanabiSimulator {
   def cardsInDeck(deck: List[HanabiCard]) = {
     print(deck)
   }
-
-  class HanabiDeck(val deck: List[HanabiCard]) {
-    def this() {
-      // unshuffled
-      this(completeDeck())
-    }
-  }
 }
 
 
