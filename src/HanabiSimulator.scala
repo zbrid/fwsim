@@ -43,7 +43,7 @@ class HanabiSimulator {
   */
   case class HanabiCard(val color: Color, val num: Int)
 
-  def completeDeck(): List[HanabiCard] = {
+  def completeDeck(): HanabiDeck = {
     // Number of each valued card per color
     val qtyVsValue = List((3, List(1)), (2, List(2, 3, 4)), (1, List(5)))
     val colors = List(Red, Blue, Green, Yellow, White)
@@ -52,25 +52,32 @@ class HanabiSimulator {
       .map({ case (qty, num) => colors.map(color => List.fill(qty.asInstanceOf[Int])(HanabiCard(color.asInstanceOf[Color], num.asInstanceOf[Int]))) })
       .flatten
       .flatten
-    println(deck)
+    return new HanabiDeck(deck)
+  }
+
+  def shuffleDeck(deck: HanabiDeck): HanabiDeck = {
+    if (deck.deck.isEmpty || deck.deck.size == 1) {
+      return deck
+    }
+    
     return deck
   }
 
-  def shuffleDeck(deck: List[HanabiCard]): List[HanabiCard] = {
-    if (deck.isEmpty() || deck.size() == 1) {
-      return deck;
-    }
-    
+  def cardsInDeck(deck: HanabiDeck) = {
+    print(deck.deck)
   }
 
-  def cardsInDeck(deck: List[HanabiCard]) = {
-    print(deck)
-  }
-
-  class HanabiDeck(val deck: List[HanabiCard]) {
-    this() {
+  class HanabiDeck(var deck: List[HanabiCard]) {
+    def this() {
       // unshuffled
-      this(HanabiSimulator.completeDeck())
+      this(completeDeck.deck)
+    }
+    def this(deck: HanabiDeck) {
+      this(deck.deck)
+    }
+
+    override def toString(): String = {
+      return deck.toString()
     }
   }
 }
@@ -81,7 +88,7 @@ object HanabiSimulator {
     println("Hello, World!")
     println("Also")
     val simulator = new HanabiSimulator()
-    simulator.completeDeck()
+    println(simulator.shuffleDeck(new simulator.HanabiDeck(simulator.completeDeck())))
   }
 
   object Color extends Enumeration {
