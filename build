@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scalac -d ~/repos/hanabi/classes/ ~/repos/hanabi/src/*
