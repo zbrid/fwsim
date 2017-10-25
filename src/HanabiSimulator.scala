@@ -41,22 +41,22 @@ class HanabiSimulator {
        Keep playing even when the deck is gone, game ends when a player would start a turn with no cards in hand
 
   */
-  case class HanabiCard(val color: Color, val num: Int)
+  case class Card(val color: Color, val num: Int)
 
-  def completeDeck(): List[HanabiCard] = {
+  def completeDeck(): List[Card] = {
     // Number of each valued card per color
     val qtyVsValue = List((3, List(1)), (2, List(2, 3, 4)), (1, List(5)))
     val colors = List(Red, Blue, Green, Yellow, White)
     val deck = qtyVsValue.map({ case (quantity, nums) => nums.asInstanceOf[List[Int]].map(n => (quantity, n)) })
       .flatten
-      .map({ case (qty, num) => colors.map(color => List.fill(qty.asInstanceOf[Int])(HanabiCard(color.asInstanceOf[Color], num.asInstanceOf[Int]))) })
+      .map({ case (qty, num) => colors.map(color => List.fill(qty.asInstanceOf[Int])(Card(color.asInstanceOf[Color], num.asInstanceOf[Int]))) })
       .flatten
       .flatten
     println(deck)
     return deck
   }
 
-  def shuffleDeck(deck: List[HanabiCard]): List[HanabiCard] = {
+  def shuffleDeck(deck: List[Card]): List[Card] = {
     if (deck.isEmpty || deck.size == 1) {
       return deck;
     }
@@ -74,7 +74,7 @@ class HanabiSimulator {
     return shuffled
   }
 
-  def cardsInDeck(deck: List[HanabiCard]) = {
+  def cardsInDeck(deck: List[Card]) = {
     print(deck)
   }
 
