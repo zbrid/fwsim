@@ -87,6 +87,26 @@ class HanabiSimulator {
   case class CardNumber(val num: Int) extends CardAttribute {
     require(num < 6 && num > 0)
   }
+
+  class GameState
+
+  class Action
+
+  case class GiveHint(hint: Hint) extends Action
+  case class DiscardCard(card: Card) extends Action
+  case class DrawCard() extends Action
+
+  class Player(val id: Int) {
+    var hand: List[Card] = List()
+    var gameState: GameState = new GameState
+
+    def drawCard(deck: List[Card]): List[Card] = {
+      this.hand = deck.head :: hand
+      return deck.tail
+    }
+
+    def updateState(action: Action): GameState = ???
+  }
 }
 
 
