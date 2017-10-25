@@ -60,6 +60,7 @@ class HanabiSimulator {
     if (deck.isEmpty || deck.size == 1) {
       return deck;
     }
+
    // 1. Assign a random number to each card.
    // 2. Sort based on the random number.
    // 3. Return sorted deck.
@@ -75,6 +76,16 @@ class HanabiSimulator {
 
   def cardsInDeck(deck: List[HanabiCard]) = {
     print(deck)
+  }
+
+  case class Hint(val player: Int, val attribute: CardAttribute, val quantity: Int)
+
+  class CardAttribute()
+
+  case class CardColor(val color: Color) extends CardAttribute
+
+  case class CardNumber(val num: Int) extends CardAttribute {
+    require(num < 6 && num > 0)
   }
 }
 
