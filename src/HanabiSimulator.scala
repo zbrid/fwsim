@@ -57,10 +57,20 @@ class HanabiSimulator {
   }
 
   def shuffleDeck(deck: List[HanabiCard]): List[HanabiCard] = {
-    if (deck.isEmpty() || deck.size() == 1) {
+    if (deck.isEmpty || deck.size == 1) {
       return deck;
     }
-    
+   // 1. Assign a random number to each card.
+   // 2. Sort based on the random number.
+   // 3. Return sorted deck.
+
+    val r = scala.util.Random
+    r.nextInt
+    val shuffled = deck.map(card => (r.nextInt, card))
+        .sortWith(_._1 > _._1)
+        .map({ case(num, card) => card })
+    println(shuffled)
+    return shuffled
   }
 
   def cardsInDeck(deck: List[HanabiCard]) = {
@@ -68,9 +78,9 @@ class HanabiSimulator {
   }
 
   class HanabiDeck(val deck: List[HanabiCard]) {
-    this() {
+    def this() {
       // unshuffled
-      this(HanabiSimulator.completeDeck())
+      this(completeDeck())
     }
   }
 }
@@ -81,7 +91,7 @@ object HanabiSimulator {
     println("Hello, World!")
     println("Also")
     val simulator = new HanabiSimulator()
-    simulator.completeDeck()
+    simulator.shuffleDeck(simulator.completeDeck())
   }
 
   object Color extends Enumeration {
