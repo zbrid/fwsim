@@ -78,7 +78,7 @@ class HanabiSimulator {
     print(deck)
   }
 
-  case class Hint(val player: Int, val attribute: CardAttribute, val quantity: Int)
+  case class Hint(val player: Int, val attribute: CardAttribute, val indices: List[Int])
 
   class CardAttribute()
 
