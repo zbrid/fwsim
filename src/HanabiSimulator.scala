@@ -1,3 +1,6 @@
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.ListBuffer
+
 class HanabiSimulator {
   import HanabiSimulator.Color._
   /*
@@ -80,32 +83,100 @@ class HanabiSimulator {
 
   case class Hint(val player: Int, val attribute: CardAttribute, val indices: List[Int])
 
-  class CardAttribute()
+  class CardAttribute
 
   case class CardColor(val color: Color) extends CardAttribute
 
   case class CardNumber(val num: Int) extends CardAttribute {
     require(num < 6 && num > 0)
   }
+  // I wonder if I can use unapply in the player method doTurn. Like unwrap the different types
+  // of moves until one fits like we do with StreamSources and StreamSinks in Airstream?
+  class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3) {
+    var discardPile: List[Card] = List()
+    var deck: List[Card] = List()
+    var players: HashMap[Int, Player] = HashMap()
+    var fireworks: FireworksDisplay = new FireworksDisplay
+    var hints: List[Hint] = List()
+    var hintTokens: Int = hintTokenMax
+    var redTokens: Int = redTokenMax
 
-  class GameState
+    // add a given card to the discard pile
+    def addDiscardedCard(discarded: Card): Unit = ???
 
-  class Action
+    def drawCard(): Card = {
+      val card = deck.head
+      deck = deck.tail
+      return card
+    }
+    def updateHints(hint: Hint): Unit = ???
 
-  case class GiveHint(hint: Hint) extends Action
-  case class DiscardCard(card: Card) extends Action
-  case class DrawCard() extends Action
+    // If adding the card works, return true.
+    def addToFireworksDisplay(card: Card): Boolean = ???
 
-  class Player(val id: Int) {
-    var hand: List[Card] = List()
-    var gameState: GameState = new GameState
+    def addPlayer(id: Int, player: Player): Unit = {
+      require(!(players contains id))
+      players += (id -> player)
+    }
+  }
 
-    def drawCard(deck: List[Card]): List[Card] = {
-      this.hand = deck.head :: hand
-      return deck.tail
+  class FireworksDisplay
+
+  /* I initially thought that each player would
+  have its own copy of the GameState object. The player
+  would take an action and then update it's own game state
+  and somewhow propagate the updates to all the other players.
+  I think it makes more sense to have a single GameState object
+  which players check when they want to know about the GameState.
+  That way I don't have to worry about registering players with
+  each others game states to receive updates. */
+  var gameState: GameState = new GameState
+
+  // For now this class uses a list buffer. Maybe there
+  // is a data structure that could be better?
+  class Player(val id: Int, val maxCards: Int) {
+    var hand: ListBuffer[Card] = ListBuffer()
+
+    // takes index of the card it will discard
+    // todo: sometimes tokens need to be subtracted when you discard, how can I tell?
+    def discardCard(index: Int): Card = {
+      val discarded = hand.remove(index)
+      gameState.addDiscardedCard(discarded)
+      return discarded
     }
 
-    def updateState(action: Action): GameState = ???
+    // returns new hand of the player who drew
+    def drawCard(): Unit = {
+      require(hand.size < maxCards)
+      this.hand += gameState.drawCard()
+    }
+
+    /*
+      1. Discard the card at the given index.
+      2. Update the state of the game with that card.
+      3. Draw a card.
+    */
+    def addToFireworkDisplay(index: Int): Unit = {
+      val card = discardCard(index)
+      drawCard
+      gameState.addToFireworksDisplay(card)
+    }
+
+    /*
+      1. Examine the state of the game.
+      2. Determine the best move out of hinting, discarding, and
+        playing.
+      3. Do the move.
+    */
+    def doTurn(): Unit = ???
+
+    def showHand(): List[Card] = {
+      return hand.toList
+    }
+
+    def addSelfToGame() = {
+      gameState.addPlayer(id, this)
+    }
   }
 }
 
