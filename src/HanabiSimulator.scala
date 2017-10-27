@@ -93,6 +93,8 @@ class HanabiSimulator {
   // I wonder if I can use unapply in the player method doTurn. Like unwrap the different types
   // of moves until one fits like we do with StreamSources and StreamSinks in Airstream?
   class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3) {
+    // todo: implement this config option, so tokens are taken away only if true
+    val playingWithTokens = false
     var discardPile: List[Card] = List()
     var deck: List[Card] = List()
     var players: HashMap[Int, Player] = HashMap()
@@ -102,17 +104,24 @@ class HanabiSimulator {
     var redTokens: Int = redTokenMax
 
     // add a given card to the discard pile
-    def addDiscardedCard(discarded: Card): Unit = ???
+    def addDiscardedCard(discarded: Card): Unit = {
+      discardPile = discarded :: discardPile
+    }
 
     def drawCard(): Card = {
       val card = deck.head
       deck = deck.tail
       return card
     }
-    def updateHints(hint: Hint): Unit = ???
+    def updateHints(hint: Hint): Unit = {
+      hints = hint :: hints
+    }
 
     // If adding the card works, return true.
-    def addToFireworksDisplay(card: Card): Boolean = ???
+    def addToFireworksDisplay(card: Card): Boolean = {
+      val success = fireworks.addToFireworksDisplay(card)
+      return success
+    }
 
     def addPlayer(id: Int, player: Player): Unit = {
       require(!(players contains id))
@@ -120,7 +129,37 @@ class HanabiSimulator {
     }
   }
 
-  class FireworksDisplay
+  class FireworksDisplay(val colorSet: Set[Color] = Set(Red, Green, Blue, White, Yellow)) {
+    require(colorSet.size > 0)
+    // todo: will I have problems with the type of this list when I start to use it?
+    var display: Map[Color, List[Card]] = colorSet.map(color => (color -> List[Card]())).toMap
+    // todo: Can I refactor this to have no special cases by using options somehow?
+    // todo: Add tests for this method
+    def addToFireworksDisplay(card: Card): Boolean = {
+      if (display(card.color).size == 0) {
+        if (card.num == 1) {
+          display = display + (card.color -> List(card))
+          return true
+        }
+        return false
+      } else {
+        val currMaxDisplayCard = display(card.color).head
+        if (card.num == (currMaxDisplayCard.num + 1)) {
+          display = display + (card.color -> (card :: display(card.color)))
+          return true
+        }
+        return false
+      }
+    }
+    // we are assuming the largest item in the list is always the head with this method
+    def currentScore: Int = {
+      return display.values.map(x => x.head.num).reduce(_ + _)
+    }
+    // todo: Make this have a better format.
+    def printDisplay(): Unit = {
+      print(display)
+    }
+  }
 
   /* I initially thought that each player would
   have its own copy of the GameState object. The player
