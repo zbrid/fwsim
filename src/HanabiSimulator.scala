@@ -92,9 +92,9 @@ class HanabiSimulator {
   }
   // I wonder if I can use unapply in the player method doTurn. Like unwrap the different types
   // of moves until one fits like we do with StreamSources and StreamSinks in Airstream?
-  class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3) {
+  class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boolean = true) {
     // todo: implement this config option, so tokens are taken away only if true
-    val playingWithTokens = false
+    val playingWithTokens = playWithTokens
     var discardPile: List[Card] = List()
     var deck: List[Card] = List()
     var players: HashMap[Int, Player] = HashMap()
@@ -113,15 +113,41 @@ class HanabiSimulator {
       deck = deck.tail
       return card
     }
-    def updateHints(hint: Hint): Unit = {
+    
+    def showAllVisibleHands(id: Int): List[Tuple2[Int, List[Card]]] = {
+      return players.values.filter(_.id != id).map(x => (x.id, x.showHand)).toList
+    }
+    // todo: You have to reject the hint if there aren't enough tokens.
+    // todo: How do I reject the hint in a nice way? Boolean return value?
+    // Throw exception and make sure players catch it?
+    def giveHint(hint: Hint): Unit = {
+      hintTokens -= 1
       hints = hint :: hints
     }
 
-    // If adding the card works, return true.
+    // todo: You have to end the game if the failure causes
+    // the red tokens to run out.
+    // How do I let the system know the game is over?
+    // Maybe use the nice HanabiSimulator context for that?
     def addToFireworksDisplay(card: Card): Boolean = {
       val success = fireworks.addToFireworksDisplay(card)
+      if (!success) { redTokens -= 1 }
       return success
     }
+
+    def getFireworksDisplay = fireworks
+
+    def getNumberOfPlayers = players.size
+
+    def getHints = hints
+
+    def getNumberOfHintTokens = hintTokens
+
+    def getNumberOfRedTokens = redTokens
+
+    def getSizeOfDeck = deck.size
+
+    def getDiscardPile = discardPile
 
     def addPlayer(id: Int, player: Player): Unit = {
       require(!(players contains id))
@@ -218,7 +244,6 @@ class HanabiSimulator {
     }
   }
 }
-
 
 object HanabiSimulator {
   def main(args: Array[String]) {
