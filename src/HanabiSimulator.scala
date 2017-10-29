@@ -233,7 +233,18 @@ class HanabiSimulator {
         playing.
       3. Do the move.
     */
-    def doTurn(): Unit = ???
+    def doTurn(): Unit = {
+     // Get state of game from this player's perspective.
+      val fireworks = gameState.getFireworksDisplay
+      val numOfPlayers = gameState.getNumberOfPlayers
+      val hints = gameState.getHints
+      val numHintTokens = gameState.getNumberOfHintTokens
+      val numRedTokens = gameState.getNumberOfRedTokens
+      val deckSize = gameState.getSizeOfDeck
+      val discardPile = gameState.getDiscardPile
+      val shownHands = gameState.showAllVisibleHands(id)
+
+    }
 
     def showHand(): List[Card] = {
       return hand.toList
