@@ -224,6 +224,10 @@ class HanabiSimulator {
       require(hand.size < maxCards)
       this.hand += gameState.drawCard()
     }
+    // todo: handle when I try to discard a card that doesn't exist in my hand
+    def discardCard(card: Card): Unit = {
+      this.discardCard(this.hand.zipWithIndex.filter(x => x._1 == card).head._1)
+    }
 
     /*
       1. Discard the card at the given index.
@@ -234,6 +238,10 @@ class HanabiSimulator {
       val card = discardCard(index)
       drawCard
       gameState.addToFireworksDisplay(card)
+    }
+    // todo: handle when I try to add a card that doesn't exist in my hand
+    def addToFireworkDisplay(card: Card): Unit = {
+      this.addToFireworkDisplay(this.hand.zipWithIndex.filter(x => x._1 == card).head._1)
     }
 
     /*
@@ -286,14 +294,28 @@ class HanabiSimulator {
       val neededFireworksByColor = gameState.getNextNeededFireworks
       val perfectlyDeterminedCards = myPossibleHand.filter(c => c.num != -1 && c.color != Unknown)
       val playableCards = perfectlyDeterminedCards.filter(c => neededFireworksByColor(c.color) == c.num)
-      
+
       // todo: is there a better way to prioritize playing a different color card for any reason? or can i play in arbitrary
       // order without any issues?
       def max(c1: Card, c2: Card): Card = if (c1.num >= c2.num) return c1 else return c2
      
       if (playableCards.size > 0) {
-        gameState.addToFireworksDisplay(playableCards.reduce(max(_, _)))
+        this.addToFireworksDisplay(playableCards.reduce(max(_, _)))
+        // done with this turn
+        return
       }
+
+      // determine if there are any discardable cards
+      // find cards where the color is complete in the diplay or the number has already been added to the display
+      val discardableCards = perfectlyDeterminedCards.filter(c => neededFireworksByColor(c.color) > c.num).union(myPossibleHand.filter(c => neededFireworksByColor(c.color) == 6)).toList
+      
+      if (discardableCards.size > 0) {
+        this.discardCard(discardableCards.head)
+        // done with this turn
+        return
+      }
+
+
     }
 
     def showHand(): List[Card] = {
