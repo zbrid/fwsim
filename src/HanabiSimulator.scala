@@ -103,6 +103,8 @@ class HanabiSimulator {
     var hintTokens: Int = hintTokenMax
     var redTokens: Int = redTokenMax
 
+    def getNextNeededFireworks() = fireworks.getNextNeeded
+
     // add a given card to the discard pile
     def addDiscardedCard(discarded: Card): Unit = {
       discardPile = discarded :: discardPile
@@ -185,6 +187,13 @@ class HanabiSimulator {
     def printDisplay(): Unit = {
       print(display)
     }
+
+    def getNextNeeded(): Map[Color, Int] = {
+      return display.map({
+        case (x, y :: ys) => (x -> y.num)
+        case (x, Nil) => (x -> 1)
+      }).toMap
+    }
   }
 
   /* I initially thought that each player would
@@ -244,6 +253,47 @@ class HanabiSimulator {
       val discardPile = gameState.getDiscardPile
       val shownHands = gameState.showAllVisibleHands(id)
 
+      // determine my own hand to the extent I can.
+
+      var myPossibleHand = ListBuffer.fill(5)(Card(Unknown, -1))
+
+      val hintsToMe = hints.filter(_.player == id)
+      // determine hand given hints
+      // todo: incrementally update myPossibleHand rather than evaluating it from
+      // scratch each time
+      hints.foreach({ hint =>
+        val indices = hint.indices
+        hint.attribute match {
+          case CardColor(x) => {
+            indices.foreach({ index =>
+              val card = myPossibleHand(index)
+              val newCard = Card(x, card.num)
+              myPossibleHand(index) = newCard
+            })
+          }
+          case CardNumber(x) => {
+            indices.foreach({ index =>
+              val card = myPossibleHand(index)
+              val newCard = Card(card.color, x)
+              myPossibleHand(index) = newCard
+            })
+          }
+        }
+      })
+      println(myPossibleHand)
+
+      // see if I have a card that can be added to the fireworks display
+      val neededFireworksByColor = gameState.getNextNeededFireworks
+      val perfectlyDeterminedCards = myPossibleHand.filter(c => c.num != -1 && c.color != Unknown)
+      val playableCards = perfectlyDeterminedCards.filter(c => neededFireworksByColor(c.color) == c.num)
+      
+      // todo: is there a better way to prioritize playing a different color card for any reason? or can i play in arbitrary
+      // order without any issues?
+      def max(c1: Card, c2: Card): Card = if (c1.num >= c2.num) return c1 else return c2
+     
+      if (playableCards.size > 0) {
+        gameState.addToFireworksDisplay(playableCards.reduce(max(_, _)))
+      }
     }
 
     def showHand(): List[Card] = {
@@ -266,6 +316,6 @@ object HanabiSimulator {
 
   object Color extends Enumeration {
     type Color = Value
-    val Red, Yellow, Green, Blue, White, Rainbow = Value
+    val Red, Yellow, Green, Blue, White, Rainbow, Unknown = Value
   }
 }
