@@ -8,6 +8,18 @@ import scala.collection.mutable.ListBuffer
 // I wonder if I can use unapply in the player method doTurn. Like unwrap the different types
 // of moves until one fits like we do with StreamSources and StreamSinks in Airstream?
 class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boolean = true) {
+  require(hintTokenMax >= 0, "There must be 0 or more hint tokens.")
+  require(redTokenMax >= 0, "There must be 0 or more red tokens.")
+
+  /*** public interface ***/
+  def doNextRound = ???
+  def getState = ???
+  def setState = ???
+  def getCurrentScore = fireworks.currentScore
+  def isGameOver = ???
+  def finishGame = ???
+
+  /*** private interface to run a game through its paces ***/
   // todo: implement this config option, so tokens are taken away only if true
   val playingWithTokens = playWithTokens
   var discardPile: List[Card] = List()
@@ -17,6 +29,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var hints: List[Hint] = List()
   var hintTokens: Int = hintTokenMax
   var redTokens: Int = redTokenMax
+
 
   def getNextNeededFireworks() = fireworks.getNextNeeded
 

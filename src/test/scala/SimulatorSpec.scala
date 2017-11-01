@@ -1,10 +1,11 @@
-import com.fwsim.Simulator
+package com.fwsim
+
 import org.scalatest._
 
 class SimulatorSpec extends FlatSpec with Matchers {
-  "A Simulator" should "return a deck with more than one card" in {
-    // 5 colors; 10 cards per color
-    val simulator = new Simulator()
-    simulator.completeDeck.size should be (50)
+
+  "A Simulator" should "produce a IncompleteSimulationException when getScores is called before tthe simulation is completed" in {
+   // assertThrows[IllegalArgumentException] {}
+   pending
   }
 }
