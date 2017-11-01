@@ -11,24 +11,32 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
   require(numRuns > 0)
   require(concurrency != 1, "Concurrency must be 1. Greater concurrency is not implemented.")
 
-  private val logger: Logger = LogManager.getLogger(Simulator.getClass)
-  private val gameRuns: List[GameState] = List()
-  private val runsCompleted = false
+  private val log: Logger = LogManager.getLogger(Simulator.getClass)
+  private var runs: List[GameState] = List.fill(numRuns)(new GameState)
+  private var runsCompleted = false
   /*** public interface ***/
   
-  def startSimulation = ???
+  def startSimulation: Unit = {
+    runs = runs.map(_.finishGame)
+    runsCompleted = true
+  }
   // I'm not 100% sure when this would be called, but I'm guessing it will be useful at some point.
   def stopSimulation = ???
   // Would it be better to prevent reuse of the same object
   // for multiple simulations like Spark does with some contexts?
-  def clearSimulations = ???
+  def clearSimulations = {
+    runs = List.fill(numRuns)(new GameState)
+  }
 
   // todo: Should this be a different class? This isn't about simulating. It's about
   // analyzing the results of a simulation, right?
   def printReport = ???
   def printScores = ???
   def printAverageScore = ???
-  def getScores = ???
+  def getScores: List[Int] = {
+    if (!runsCompleted) log.warn("Getting scores when runs aren't completed")
+    runs.map(_.getCurrentScore)
+  }
   def getAverageScore = ???
 }
 
