@@ -3,8 +3,8 @@ package com.fwsim
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
 
-class HanabiSimulator {
-  import HanabiSimulator.Color._
+class Simulator {
+  import Simulator.Color._
   /*
     3 1s
     2 2s
@@ -132,7 +132,7 @@ class HanabiSimulator {
     // todo: You have to end the game if the failure causes
     // the red tokens to run out.
     // How do I let the system know the game is over?
-    // Maybe use the nice HanabiSimulator context for that?
+    // Maybe use the nice Simulator context for that?
     def addToFireworksDisplay(card: Card): Boolean = {
       val success = fireworks.addToFireworksDisplay(card)
       if (!success) { redTokens -= 1 }
@@ -330,11 +330,11 @@ class HanabiSimulator {
   }
 }
 
-object HanabiSimulator {
+object Simulator {
   def main(args: Array[String]) {
     println("Hello, World!")
     println("Also")
-    val simulator = new HanabiSimulator()
+    val simulator = new Simulator()
     simulator.shuffleDeck(simulator.completeDeck())
   }
 
