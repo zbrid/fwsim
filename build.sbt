@@ -1,5 +1,6 @@
 import Dependencies._
-
+// Maybe later add the plugins that are supposed to help
+// with tests: http://www.scalatest.org/install
 lazy val root = (project in file("."))
   .settings(
       inThisBuild(List(
@@ -8,5 +9,7 @@ lazy val root = (project in file("."))
         version := "0.1.0-SNAPSHOT"
       )), 
       name := "fwsim",
-      libraryDependencies += scalaTest % Test
+      libraryDependencies += scalaTest % Test,
+      libraryDependencies += "org.apache.logging.log4j" % "log4j-api" % "2.9.1",
+      libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.9.1"
   )
