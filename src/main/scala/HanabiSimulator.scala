@@ -234,14 +234,14 @@ class HanabiSimulator {
       2. Update the state of the game with that card.
       3. Draw a card.
     */
-    def addToFireworkDisplay(index: Int): Unit = {
+    def addToFireworksDisplay(index: Int): Unit = {
       val card = discardCard(index)
       drawCard
       gameState.addToFireworksDisplay(card)
     }
     // todo: handle when I try to add a card that doesn't exist in my hand
-    def addToFireworkDisplay(card: Card): Unit = {
-      this.addToFireworkDisplay(this.hand.zipWithIndex.filter(x => x._1 == card).head._1)
+    def addToFireworksDisplay(card: Card): Unit = {
+      this.addToFireworksDisplay(this.hand.zipWithIndex.filter(x => x._1 == card).head._1)
     }
 
     /*

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-scala -cp ~/repos/fwsim/classes HanabiSimulator
