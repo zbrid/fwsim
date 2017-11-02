@@ -16,15 +16,21 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   def getState = ???
   def setState = ???
   def getCurrentScore = fireworks.currentScore
-  def isGameOver = ???
+  // note that the winning score is different depending on the config of the game state
+  // for now we will assume that there are 5 colors that go up to 5
+  def isGameOver: Boolean = {
+    return fireworks.currentScore == 25 || redTokens == 0 || (deck.size == 0 && finalRound == true)
+  }
   def finishGame = ???
 
   /*** private interface to run a game through its paces ***/
   // todo: implement this config option, so tokens are taken away only if true
   val playingWithTokens = playWithTokens
+  var finalRound = false
   var discardPile: List[Card] = List()
   var deck: List[Card] = List()
-  var players: HashMap[Int, Player] = HashMap()
+  // maybe later I can use immutable data structures for this
+  var players: HashMap[Int, ListBuffer[Card]] = HashMap()
   var fireworks: FireworksDisplay = new FireworksDisplay
   var hints: List[Hint] = List()
   var hintTokens: Int = hintTokenMax
@@ -45,7 +51,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   }
   
   def showAllVisibleHands(id: Int): List[Tuple2[Int, List[Card]]] = {
-    return players.values.filter(_.id != id).map(x => (x.id, x.showHand)).toList
+    return players.map({case (x, y) => (x, y.toList)}).filter(_._1 == id).toList
   }
   // todo: You have to reject the hint if there aren't enough tokens.
   // todo: How do I reject the hint in a nice way? Boolean return value?
@@ -65,63 +71,9 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     return success
   }
 
-  def getFireworksDisplay = fireworks
-
-  def getNumberOfPlayers = players.size
-
-  def getHints = hints
-
-  def getNumberOfHintTokens = hintTokens
-
-  def getNumberOfRedTokens = redTokens
-
-  def getSizeOfDeck = deck.size
-
-  def getDiscardPile = discardPile
-
-  def addPlayer(id: Int, player: Player): Unit = {
+  def addPlayer(id: Int): Unit = {
     require(!(players contains id))
-    players += (id -> player)
-  }
-}
-
-
-// For now this class uses a list buffer. Maybe there
-// is a data structure that could be better?
-class Player(val id: Int, val maxCards: Int) {
-  var hand: ListBuffer[Card] = ListBuffer()
-  var gameState = new GameState 
-  // takes index of the card it will discard
-  // todo: sometimes tokens need to be subtracted when you discard, how can I tell?
-  def discardCard(index: Int): Card = {
-    val discarded = hand.remove(index)
-    gameState.addDiscardedCard(discarded)
-    return discarded
-  }
-
-  // returns new hand of the player who drew
-  def drawCard(): Unit = {
-    require(hand.size < maxCards)
-    this.hand += gameState.drawCard()
-  }
-  // todo: handle when I try to discard a card that doesn't exist in my hand
-  def discardCard(card: Card): Unit = {
-    this.discardCard(this.hand.zipWithIndex.filter(x => x._1 == card).head._1)
-  }
-
-  /*
-    1. Discard the card at the given index.
-    2. Update the state of the game with that card.
-    3. Draw a card.
-  */
-  def addToFireworksDisplay(index: Int): Unit = {
-    val card = discardCard(index)
-    drawCard
-    gameState.addToFireworksDisplay(card)
-  }
-  // todo: handle when I try to add a card that doesn't exist in my hand
-  def addToFireworksDisplay(card: Card): Unit = {
-    this.addToFireworksDisplay(this.hand.zipWithIndex.filter(x => x._1 == card).head._1)
+    players += (id -> ListBuffer[Card]())
   }
 
   /*
@@ -131,16 +83,7 @@ class Player(val id: Int, val maxCards: Int) {
     3. Do the move.
   */
   def doTurn(): Unit = {
-   // Get state of game from this player's perspective.
-    val fireworks = gameState.getFireworksDisplay
-    val numOfPlayers = gameState.getNumberOfPlayers
-    val hints = gameState.getHints
-    val numHintTokens = gameState.getNumberOfHintTokens
-    val numRedTokens = gameState.getNumberOfRedTokens
-    val deckSize = gameState.getSizeOfDeck
-    val discardPile = gameState.getDiscardPile
-    val shownHands = gameState.showAllVisibleHands(id)
-
+   /*// Get state of game from this player's perspective.
     // determine my own hand to the extent I can.
 
     var myPossibleHand = ListBuffer.fill(5)(Card(Unknown, -1))
@@ -194,15 +137,6 @@ class Player(val id: Int, val maxCards: Int) {
       // done with this turn
       return
     }
-
-
-  }
-
-  def showHand(): List[Card] = {
-    return hand.toList
-  }
-
-  def addSelfToGame() = {
-    gameState.addPlayer(id, this)
+    */
   }
 }
