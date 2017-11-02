@@ -1,5 +1,7 @@
-package com.fwsim
+package com.fwsim.simulator
 
+import com.fwsim.GameState
+import com.fwsim.Deck
 import com.fwsim.Color._
 
 import org.apache.logging.log4j.LogManager
