@@ -1,8 +1,9 @@
 package com.fwsim
 
 import com.fwsim.Color._
+import scala.collection.mutable.ListBuffer
 
-case class Hint(val player: Int, val attribute: CardAttribute, val indices: List[Int])
+case class Hint(val id: Int, val attribute: CardAttribute, var indices: ListBuffer[Int])
 
 class CardAttribute
 

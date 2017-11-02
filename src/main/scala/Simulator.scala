@@ -6,8 +6,6 @@ import com.fwsim.Color._
 
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.ListBuffer
  
 class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
   require(numRuns > 0)
