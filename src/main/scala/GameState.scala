@@ -124,7 +124,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   }
 
   private def getFullyDeterminedCards(hand: ListBuffer[Card]): ListBuffer[Tuple2[Card, Int]] = {
-    return hand.zipWithIndex.filter(c => c._1.num > 0).filter(c._1.color != Unknown).filter(c._1.color != NotACard)
+    return hand.zipWithIndex.filter(_._1.num > 0).filter(_._1.color != Unknown).filter(_._1.color != NotACard)
   }
   
   /* 
@@ -148,6 +148,12 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
       playing.
     3. Do the move.
   */
+  // todo: There are situations where I would like to give a hint
+  // rather than play a card. For example, if the player who is next
+  // has no useful information for their turn, then I may prefer to give
+  // them a hint. (On the other hand in that case, perhaps discarding
+  // a card to get a hint token or playing a card to win the game would be
+  // better.)
   private def doTurn(id: Int): Unit = {
 
     val possibleHand = determineHand(id) 
@@ -180,5 +186,34 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
       return
     }
     // otherwise give a hint, guess at playing, guess at discarding
+    // trying to figure out the best hint to give
+    /* 
+      1. Get the state that each player knows about their hand from
+          the current player's perspective.
+      2. Get the actual hands each other player has.
+      3. Compare this with what is the discard pile and the display
+          to determine the hint that will be most useful.
+          - Don't forget to consider what moves the next player will
+            be able to do given their current set of information.
+          - Actually this is hard af.
+          - What if I only consider what the person who is directly
+            next might do? That lowers the amount of info I have to
+            consider even if it means that the decision ends up being
+            suboptimal.
+      */
+    val determinedHands = players.keys.filter(_ == id).map{p => (p -> determineHand(p))}.toMap
+    val knownHands = showAllVisibleHands(id)
+    // 1st try
+    // todo: add a weighting by whoever is next to play
+    val otherPlayersPlayableCards = knownHands.map({ case (id, hand) => (id, hand.filter(fireworks.isPlayable(_))) }).filter(_._2.size == 0)
+    if (!otherPlayersPlayableCards.isEmpty) {
+      val onlyOneHintNeededPlayableCards = getOneHintNeededPlayableCards(determinedHands, otherPlayersPlayableCards)
+    }
+  }
+  // todo: fix the type stuff so when I come back to the code it's obvious what is what type. I can't tell what's a list, listbuffer, or map right now...
+  // todo: this function will figure out the best hint to give a player that will result in them knowing a playable card in their next turn
+  // todo: maybe I can do something like implement a determine hand method that takes extra hints?
+  private def getOneHintNeededPlayableCards(determinedHands: Map[Int, ListBuffer[Card]], otherPlayersPlayableCards: List[Tuple2[Int, List[Card]]]): ListBuffer[Tuple2[Int, Hint]] = {
+    return ListBuffer()
   }
 }

@@ -39,4 +39,19 @@ class FireworksDisplay(val colorSet: Set[Color] = Set(Red, Green, Blue, White, Y
       case (x, Nil) => (x -> 1)
     }).toMap
   }
+  // todo: refactor to duplicate less code with addToFireworksDisplay
+  def isPlayable(card: Card): Boolean = {
+    if (display(card.color).size == 0) {
+      if (card.num == 1) {
+        return true
+      }
+      return false
+    } else {
+      val currMaxDisplayCard = display(card.color).head
+      if (card.num == (currMaxDisplayCard.num + 1)) {
+        return true
+      }
+      return false
+    }
+  }
 }
