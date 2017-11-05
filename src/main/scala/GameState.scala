@@ -39,14 +39,14 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var hintTokens: Int = hintTokenMax
   var redTokens: Int = redTokenMax
 
-  def getNextNeededFireworks() = fireworks.getNextNeeded
+  private def getNextNeededFireworks() = fireworks.getNextNeeded
 
   /*
     1. Remove from hand of player with given id.
     2. Add to discard pile.
     3. Draw a card from the deck for player with given id.
   */
-  def discardCard(id: Int, index: Int): Unit = {
+  private def discardCard(id: Int, index: Int): Unit = {
     discardPile = players(id)(index) :: discardPile
     if (!deck.isEmpty) {
       players(id)(index) = deck.head
@@ -56,19 +56,19 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     }
   }
   
-  def drawCard(): Card = {
+  private def drawCard(): Card = {
     val card = deck.head
     deck = deck.tail
     return card
   }
   
-  def showAllVisibleHands(id: Int): List[Tuple2[Int, List[Card]]] = {
+  private def showAllVisibleHands(id: Int): List[Tuple2[Int, List[Card]]] = {
     return players.map({case (x, y) => (x, y.toList)}).filter(_._1 == id).toList
   }
   // todo: You have to reject the hint if there aren't enough tokens.
   // todo: How do I reject the hint in a nice way? Boolean return value?
   // Throw exception and make sure players catch it?
-  def giveHint(hint: Hint): Unit = {
+  private def giveHint(hint: Hint): Unit = {
     if (hintTokens == 0) log.error("You gave a hint when there were no hint tokens left.")
     hintTokens -= 1
     if (hintTokens == 0) log.warn("No hint tokens remain.")
@@ -79,13 +79,13 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   // the red tokens to run out.
   // How do I let the system know the game is over?
   // Maybe use the nice Simulator context for that?
-  def addToFireworksDisplay(card: Card): Boolean = {
+  private def addToFireworksDisplay(card: Card): Boolean = {
     val success = fireworks.addToFireworksDisplay(card)
     if (!success) { redTokens -= 1 }
     return success
   }
 
-  def addPlayer(id: Int): Unit = {
+  private def addPlayer(id: Int): Unit = {
     require(!(players contains id))
     players += (id -> ListBuffer[Card]())
   }
