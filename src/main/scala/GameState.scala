@@ -24,7 +24,10 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   def isGameOver: Boolean = {
     fireworks.currentScore == 25 || redTokens == 0 || (deck.size == 0 && finalRound == true)
   }
-  def finishGame: GameState = ???
+  def finishGame: GameState = {
+    log.warn("The finishGame method is not properly implemented for the GameState class. Returning a new instance of GameState with the default configuration.")
+    new GameState
+  }
 
   /*** private interface to run a game through its paces ***/
   // todo: implement this config option, so tokens are taken away only if true

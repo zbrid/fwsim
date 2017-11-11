@@ -25,8 +25,10 @@ class FireworksDisplay(val colorSet: Set[Color] = Set(Red, Green, Blue, White, Y
     }
   }
   // we are assuming the largest item in the list is always the head with this method
+  // todo: I think this breaks if the number on top is six, which I think might actually
+  // happen when a color fills up...
   def currentScore: Int = {
-    return display.values.map(x => x.head.num).reduce(_ + _)
+    return display.values.map(x => if(x.isEmpty) 0 else x.head.num).reduce(_ + _)
   }
   // todo: Make this have a better format.
   def printDisplay(): Unit = {
