@@ -22,9 +22,9 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   // note that the winning score is different depending on the config of the game state
   // for now we will assume that there are 5 colors that go up to 5
   def isGameOver: Boolean = {
-    return fireworks.currentScore == 25 || redTokens == 0 || (deck.size == 0 && finalRound == true)
+    fireworks.currentScore == 25 || redTokens == 0 || (deck.size == 0 && finalRound == true)
   }
-  def finishGame = ???
+  def finishGame: GameState = ???
 
   /*** private interface to run a game through its paces ***/
   // todo: implement this config option, so tokens are taken away only if true
@@ -59,11 +59,11 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   private def drawCard(): Card = {
     val card = deck.head
     deck = deck.tail
-    return card
+    card
   }
   
   private def showAllVisibleHands(id: Int): List[Tuple2[Int, List[Card]]] = {
-    return players.map({case (x, y) => (x, y.toList)}).filter(_._1 == id).toList
+    players.map({case (x, y) => (x, y.toList)}).filter(_._1 == id).toList
   }
   // todo: You have to reject the hint if there aren't enough tokens.
   // todo: How do I reject the hint in a nice way? Boolean return value?
@@ -82,7 +82,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   private def addToFireworksDisplay(card: Card): Boolean = {
     val success = fireworks.addToFireworksDisplay(card)
     if (!success) { redTokens -= 1 }
-    return success
+    success
   }
 
   private def addPlayer(id: Int): Unit = {
@@ -120,11 +120,11 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
       }
     })
     log.info(s"Player $id has possible hand $possibleHand.")
-    return possibleHand
+    possibleHand
   }
 
   private def getFullyDeterminedCards(hand: ListBuffer[Card]): ListBuffer[Tuple2[Card, Int]] = {
-    return hand.zipWithIndex.filter(_._1.num > 0).filter(_._1.color != Unknown).filter(_._1.color != NotACard)
+    hand.zipWithIndex.filter(_._1.num > 0).filter(_._1.color != Unknown).filter(_._1.color != NotACard)
   }
   
   /* 
@@ -162,7 +162,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     val neededFireworksByColor = getNextNeededFireworks
     val playableCards = fullyDeterminedCards.filter(c => neededFireworksByColor(c._1.color) == c._1.num)
 
-    def max(c1: Tuple2[Card, Int], c2: Tuple2[Card, Int]): Tuple2[Card, Int] = if (c1._1.num >= c2._1.num) return c1 else return c2 
+    def max(c1: Tuple2[Card, Int], c2: Tuple2[Card, Int]): Tuple2[Card, Int] = if (c1._1.num >= c2._1.num) c1 else c2 
     
     // todo: is there a better way to prioritize playing a different color card for any reason? or can i play in arbitrary
     // order without any issues?  
@@ -214,6 +214,13 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   // todo: this function will figure out the best hint to give a player that will result in them knowing a playable card in their next turn
   // todo: maybe I can do something like implement a determine hand method that takes extra hints?
   private def getOneHintNeededPlayableCards(determinedHands: Map[Int, ListBuffer[Card]], otherPlayersPlayableCards: List[Tuple2[Int, List[Card]]]): ListBuffer[Tuple2[Int, Hint]] = {
-    return ListBuffer()
+    // get all cards that have either num only determined or color only determined
+    val onlyOneHintAway = determinedHands.map({ case (k, v) => (k, v.filter(c => (c.color == Unknown && c.num >= 1 && c.num < 6) || (c.color != Unknown && c.num <= 0))) })
+                                          .filter({ case (x, y) => !y.isEmpty })
+    if (onlyOneHintAway.isEmpty) {
+      return ListBuffer()
+    }
+    ListBuffer()
+
   }
 }
