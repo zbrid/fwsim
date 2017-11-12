@@ -42,7 +42,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   // I don't remember what this var is for?
   var finalRound = false
   var discardPile: List[Card] = List()
-  var deck: List[Card] = List()
+  var deck: List[Card] = Deck.shuffleDeck(Deck.completeDeck)
   // maybe later I can use immutable data structures for this
   var players: Array[ListBuffer[Card]] = Array.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
   var fireworks: FireworksDisplay = new FireworksDisplay
