@@ -44,15 +44,16 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var discardPile: List[Card] = List()
   var deck: List[Card] = List()
   // maybe later I can use immutable data structures for this
-  var players: HashMap[Int, ListBuffer[Card]] = HashMap()
+  var players: Array[ListBuffer[Card]] = Array.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
   var fireworks: FireworksDisplay = new FireworksDisplay
   var hints: ListBuffer[Hint] = ListBuffer()
   var hintTokens: Int = hintTokenMax
   var redTokens: Int = redTokenMax
+  val numPlayersToInitialCardNum: Map[Int, Int] = Map(3 -> 5, 4 -> 4, 5 -> 4)
 
-  // add all the players to the game with ids from 0 to numPlayers - 1
-  (0).until(numPlayers - 1).foreach(x => addPlayer(x))
-
+  private def drawXCards(x: Int): ListBuffer[Card] = {
+    ListBuffer.fill(x)(drawCard)
+  }
 
   private def nextPlayer(curr: Int): Int = {
     (curr + 1) % numPlayers
@@ -84,11 +85,6 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     val success = fireworks.addToFireworksDisplay(card)
     if (!success) { redTokens -= 1 }
     success
-  }
-
-  private def addPlayer(id: Int): Unit = {
-    require(!(players contains id))
-    players += (id -> ListBuffer[Card]())
   }
 
   private def doTurn(id: Int): Unit = {
