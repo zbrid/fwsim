@@ -15,18 +15,9 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
 
   private val log: Logger = LogManager.getLogger(GameState.getClass)
   /*** public interface ***/
-  def doNextRound = ???
-  def getState = ???
-  def setState = ???
   def getCurrentScore = fireworks.currentScore
-  // note that the winning score is different depending on the config of the game state
-  // for now we will assume that there are 5 colors that go up to 5
-  def isGameOver: Boolean = {
-    fireworks.currentScore == 25 || redTokens == 0 || (deck.size == 0 && finalRound == true)
-  }
-  
   def finishGame: GameState = {
-    while(!gameComplete) {
+    while(!gameOver) {
       doTurn(currPlayer)
       currPlayer = nextPlayer(currPlayer) 
     }
@@ -37,13 +28,9 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   /*** private interface to run a game through its paces ***/
   var numOfTurns = 0
   var currPlayer = 0
-  // todo: implement this config option, so tokens are taken away only if true
-  val playingWithTokens = playWithTokens
-  // I don't remember what this var is for?
+  var deck: List[Card] = Deck.shuffleDeck(Deck.completeDeck)
   var finalRound = false
   var discardPile: List[Card] = List()
-  var deck: List[Card] = Deck.shuffleDeck(Deck.completeDeck)
-  // maybe later I can use immutable data structures for this
   var players: Array[ListBuffer[Card]] = Array.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
   var fireworks: FireworksDisplay = new FireworksDisplay
   var hints: ListBuffer[Hint] = ListBuffer()
@@ -58,7 +45,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   private def nextPlayer(curr: Int): Int = {
     (curr + 1) % numPlayers
   }
-  private def gameComplete: Boolean = redTokens > 0 && fireworks.currentScore != fireworks.maxScore
+  private def gameOver: Boolean = redTokens == 0 || fireworks.currentScore == fireworks.maxScore || (deck.size == 0 && finalRound == true)
 
   /*
     1. Remove from hand of player with given id.
