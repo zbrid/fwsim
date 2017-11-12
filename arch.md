@@ -1,4 +1,29 @@
-# Version 0.2
+# Version 0.3
+## Simulator
+
+Class that holds many games. Can configure games to run, run them, then return the results.
+
+## GameState
+
+This class is used by the GameInstance. It holds players, token counts, hands, and the fireworks display. It can walk through the game by telling each player to take its turn.
+
+## Card
+
+Class that represents a card in the game.
+
+## Hint
+
+Class that represents a hint in the game. It consists of a player id, a card attribute, and a List of ints that are the indexes where the card attribute applies.
+
+## FireworksDisplay
+
+Class that contains a fireworks display. Cards can be added to the display and it will respond about whether the addition was successful or not.
+
+## Deck 
+
+A class with utility functions to create decks with needed cards.
+
+# (Deprecated) Version 0.2
 ## Simulator
 
 Class that holds many games. Can configure games to run, run them, then return the results.
