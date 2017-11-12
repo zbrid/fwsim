@@ -26,7 +26,6 @@ object Deck {
    // 3. Return sorted deck.
 
     val r = scala.util.Random
-    r.nextInt
     val shuffled = deck.map(card => (r.nextInt, card))
         .sortWith(_._1 > _._1)
         .map({ case(num, card) => card })

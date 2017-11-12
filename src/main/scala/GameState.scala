@@ -70,8 +70,6 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     if (!deck.isEmpty) {
       players(id)(index) = deck.head
       deck = deck.tail
-    } else {
-      players(id)(index) = Card(NotACard, -1)
     }
   }
   
@@ -81,12 +79,23 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     card
   }
 
-  private def addToFireworksDisplay(card: Card): Boolean = {
+  private def addToFireworksDisplay(card: Card): Unit = {
     val success = fireworks.addToFireworksDisplay(card)
     if (!success) { redTokens -= 1 }
-    success
   }
 
+  /*
+    1. Choose a card from the current player's hand at random.
+    2. Try to add it to the fireworks.
+    3. Draw a card.
+  */
   private def doTurn(id: Int): Unit = {
+    numOfTurns += 1
+   
+    val r = scala.util.Random
+    
+    val index = r.nextInt % players(id).size
+    addToFireworksDisplay(players(id)(index))
+    players(id).update(index, drawCard)
   }
 }
