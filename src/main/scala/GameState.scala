@@ -9,7 +9,7 @@ import scala.collection.mutable.ListBuffer
 
 // I wonder if I can use unapply in the player method doTurn. Like unwrap the different types
 // of moves until one fits like we do with StreamSources and StreamSinks in Airstream?
-class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boolean = true) {
+class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boolean = true, numPlayers: Int = 4) {
   require(hintTokenMax >= 0, "There must be 0 or more hint tokens.")
   require(redTokenMax >= 0, "There must be 0 or more red tokens.")
 
@@ -24,14 +24,22 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   def isGameOver: Boolean = {
     fireworks.currentScore == 25 || redTokens == 0 || (deck.size == 0 && finalRound == true)
   }
+  
   def finishGame: GameState = {
+    while(!gameComplete) {
+      doTurn(currPlayer)
+      currPlayer = nextPlayer(currPlayer) 
+    }
     log.warn("The finishGame method is not properly implemented for the GameState class. Returning a new instance of GameState with the default configuration.")
     new GameState
   }
 
   /*** private interface to run a game through its paces ***/
+  var numOfTurns = 0
+  var currPlayer = 0
   // todo: implement this config option, so tokens are taken away only if true
   val playingWithTokens = playWithTokens
+  // I don't remember what this var is for?
   var finalRound = false
   var discardPile: List[Card] = List()
   var deck: List[Card] = List()
@@ -41,6 +49,15 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var hints: ListBuffer[Hint] = ListBuffer()
   var hintTokens: Int = hintTokenMax
   var redTokens: Int = redTokenMax
+
+  // add all the players to the game with ids from 0 to numPlayers - 1
+  (0).until(numPlayers - 1).foreach(x => addPlayer(x))
+
+
+  private def nextPlayer(curr: Int): Int = {
+    (curr + 1) % numPlayers
+  }
+  private def gameComplete: Boolean = redTokens > 0 && fireworks.currentScore != fireworks.maxScore
 
   private def getNextNeededFireworks() = fireworks.getNextNeeded
 
@@ -92,6 +109,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     require(!(players contains id))
     players += (id -> ListBuffer[Card]())
   }
+
   // I just realized that these hints may not be about the cards
   // in the hand because I might have discarded or played a card
   // by the time I look at the hints again. I should remove info
@@ -158,6 +176,10 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   // a card to get a hint token or playing a card to win the game would be
   // better.)
   private def doTurn(id: Int): Unit = {
+    numOfTurns += 1
+    if (numOfTurns == 5) {
+      redTokens = 0
+    }
 
     val possibleHand = determineHand(id) 
     val fullyDeterminedCards = getFullyDeterminedCards(possibleHand)

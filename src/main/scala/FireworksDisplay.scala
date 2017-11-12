@@ -24,9 +24,10 @@ class FireworksDisplay(val colorSet: Set[Color] = Set(Red, Green, Blue, White, Y
       return false
     }
   }
+  // todo: configure game to have whatever max cards as you want
+  def maxScore = colorSet.size * 5 // this assumes max # of cards is 5
+
   // we are assuming the largest item in the list is always the head with this method
-  // todo: I think this breaks if the number on top is six, which I think might actually
-  // happen when a color fills up...
   def currentScore: Int = {
     return display.values.map(x => if(x.isEmpty) 0 else x.head.num).reduce(_ + _)
   }
@@ -41,6 +42,7 @@ class FireworksDisplay(val colorSet: Set[Color] = Set(Red, Green, Blue, White, Y
       case (x, Nil) => (x -> 1)
     }).toMap
   }
+
   // todo: refactor to duplicate less code with addToFireworksDisplay
   def isPlayable(card: Card): Boolean = {
     if (display(card.color).size == 0) {
