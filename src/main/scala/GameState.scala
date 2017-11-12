@@ -15,11 +15,21 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   require(numPlayers >= 3 && numPlayers <= 5, "There must be three to five players.")
 
   private val log: Logger = LogManager.getLogger(GameState.getClass)
+
+  // todo: make strategy configurable
+  case class Strategy(name: String)
+  val strategy = Strategy("Randomly play a card")
   /*** public interface ***/
   def getCurrentScore = fireworks.currentScore
   def finishGame: GameState = {
     while(!gameOver) {
-      doTurn(currPlayer)
+      strategy match {
+        case Strategy("Randomly play a card") => randomlyPlayACard(currPlayer)
+        case unknown => { 
+          log.error("Strategy named $unknown was not found.")
+          return this
+        }
+      }
       currPlayer = nextPlayer(currPlayer) 
     }
     return this
@@ -77,7 +87,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     2. Try to add it to the fireworks.
     3. Draw a card.
   */
-  private def doTurn(id: Int): Unit = {
+  private def randomlyPlayACard(id: Int): Unit = {
     numOfTurns += 1
    
     val r = scala.util.Random
