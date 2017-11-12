@@ -62,12 +62,21 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
     }
     runs.map(_.getCurrentScore).reduce(_ + _) / runs.size
   }
+
+  def printNumOfTurns(): Unit = {
+    println(getNumOfTurns)
+  }
+
+  def getNumOfTurns(): List[Int] = {
+    runs.map(_.numOfTurns)
+  }
 }
 
 object Simulator {
   def main(args: Array[String]) {
-    val simulator = new Simulator(numRuns = 10)
+    val simulator = new Simulator(numRuns = 1000000000)
     simulator.startSimulation
-    simulator.printScores
+    println(simulator.getScores.max)
+    println(simulator.getNumOfTurns.max)
   }
 }

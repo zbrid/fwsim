@@ -12,7 +12,6 @@ object Deck {
       .map({ case (qty, num) => colors.map(color => List.fill(qty.asInstanceOf[Int])(Card(color.asInstanceOf[Color], num.asInstanceOf[Int]))) })
       .flatten
       .flatten
-    println(deck)
     return deck
   }
 
@@ -29,7 +28,6 @@ object Deck {
     val shuffled = deck.map(card => (r.nextInt, card))
         .sortWith(_._1 > _._1)
         .map({ case(num, card) => card })
-    println(shuffled)
     return shuffled
   }
 }

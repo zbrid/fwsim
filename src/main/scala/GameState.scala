@@ -12,6 +12,7 @@ import scala.collection.mutable.ListBuffer
 class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boolean = true, numPlayers: Int = 4) {
   require(hintTokenMax >= 0, "There must be 0 or more hint tokens.")
   require(redTokenMax >= 0, "There must be 0 or more red tokens.")
+  require(numPlayers >= 3 && numPlayers <= 5, "There must be three to five players.")
 
   private val log: Logger = LogManager.getLogger(GameState.getClass)
   /*** public interface ***/
@@ -21,8 +22,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
       doTurn(currPlayer)
       currPlayer = nextPlayer(currPlayer) 
     }
-    log.warn("The finishGame method is not properly implemented for the GameState class. Returning a new instance of GameState with the default configuration.")
-    new GameState
+    return this
   }
 
   /*** private interface to run a game through its paces ***/
@@ -31,12 +31,13 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var deck: List[Card] = Deck.shuffleDeck(Deck.completeDeck)
   var finalRound = false
   var discardPile: List[Card] = List()
-  var players: Array[ListBuffer[Card]] = Array.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
+  val numPlayersToInitialCardNum: Map[Int, Int] = Map(3 -> 5, 4 -> 4, 5 -> 4)
+  var players: List[ListBuffer[Card]] =
+      List.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
   var fireworks: FireworksDisplay = new FireworksDisplay
   var hints: ListBuffer[Hint] = ListBuffer()
   var hintTokens: Int = hintTokenMax
   var redTokens: Int = redTokenMax
-  val numPlayersToInitialCardNum: Map[Int, Int] = Map(3 -> 5, 4 -> 4, 5 -> 4)
 
   private def drawXCards(x: Int): ListBuffer[Card] = {
     ListBuffer.fill(x)(drawCard)
@@ -81,7 +82,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
    
     val r = scala.util.Random
     
-    val index = r.nextInt % players(id).size
+    val index = Math.abs(r.nextInt) % players(id).size
     addToFireworksDisplay(players(id)(index))
     players(id).update(index, drawCard)
   }
