@@ -1,6 +1,5 @@
 import Dependencies._
-// Maybe later add the plugins that are supposed to help
-// with tests: http://www.scalatest.org/install
+
 lazy val root = (project in file("."))
   .settings(
       inThisBuild(List(
