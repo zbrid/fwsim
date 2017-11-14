@@ -74,8 +74,11 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
 
 object Simulator {
   def main(args: Array[String]) {
-    val simulator = new Simulator(numRuns = 1000000000)
+    //val simulator = new Simulator(numRuns = 1000000000)
+    val simulator = new Simulator(numRuns = 10)
     simulator.startSimulation
+    simulator.printScores
+    simulator.printNumOfTurns
     println(simulator.getScores.max)
     println(simulator.getNumOfTurns.max)
   }

@@ -18,13 +18,15 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
 
   // todo: make strategy configurable
   case class Strategy(name: String)
-  val strategy = Strategy("Randomly play a card")
+//  val strategy = Strategy("Randomly play a card")
+  val strategy = Strategy("Hint, hint, play")
   /*** public interface ***/
   def getCurrentScore = fireworks.currentScore
   def finishGame: GameState = {
     while(!gameOver) {
       strategy match {
         case Strategy("Randomly play a card") => randomlyPlayACard(currPlayer)
+        case Strategy("Hint, hint, play") => hintHintPlay(currPlayer)
         case unknown => { 
           log.error("Strategy named $unknown was not found.")
           return this
@@ -50,6 +52,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var redTokens: Int = redTokenMax
 
   private def drawXCards(x: Int): ListBuffer[Card] = {
+    require(x >= 0)
     ListBuffer.fill(x)(drawCard)
   }
 
@@ -90,10 +93,48 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   private def randomlyPlayACard(id: Int): Unit = {
     numOfTurns += 1
    
-    val r = scala.util.Random
-    
-    val index = Math.abs(r.nextInt) % players(id).size
+    val index = randomCardIndex(id)
     addToFireworksDisplay(players(id)(index))
     players(id).update(index, drawCard)
   }
+
+  private def randomCardIndex(id: Int): Int = {
+    val r = scala.util.Random
+    Math.abs(r.nextInt) % players(id).size
+  }
+ 
+  var hintedIndex = 0
+  var hintCounter = 0
+  var hinteeId = 0
+  private def hintHintPlay(id: Int): Unit = {
+    hintCounter match {
+      case 0 => {
+        hinteeId = nextPlayer(nextPlayer(id)) 
+        hintedIndex = getBestCard(hinteeId)
+        hintCounter += 1
+      }
+      case 1 => { 
+        hintCounter += 1
+      }
+      case 2 => {
+        addToFireworksDisplay(players(id)(hintedIndex))
+        players(id).update(hintedIndex, drawCard)
+        hintCounter = 0
+      }
+    }
+
+    def getBestCard(id: Int): Int = {
+      def max(c1: Tuple2[Card, Int], c2: Tuple2[Card, Int]): Tuple2[Card, Int] = if (c1._1.num >= c2._1.num) c1 else c2
+      val playables = players(id).zipWithIndex
+                 .filter(x => fireworks.isPlayable(x._1))
+      if (playables.isEmpty) {
+        randomCardIndex(id)
+      } else {
+        playables.reduce(max(_,_))._2
+      }
+    }
+  }
+  // next strat: get the best playable card of player
+  // two people ahead, if none, randomly play a card,
+  // else give that hint
 }
