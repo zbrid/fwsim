@@ -24,6 +24,7 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   def getCurrentScore = fireworks.currentScore
   def finishGame: GameState = {
     while(!gameOver) {
+      numOfTurns += 1
       strategy match {
         case Strategy("Randomly play a card") => randomlyPlayACard(currPlayer)
         case Strategy("Hint, hint, play") => hintHintPlay(currPlayer)
@@ -91,8 +92,6 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     3. Draw a card.
   */
   private def randomlyPlayACard(id: Int): Unit = {
-    numOfTurns += 1
-   
     val index = randomCardIndex(id)
     addToFireworksDisplay(players(id)(index))
     players(id).update(index, drawCard)
