@@ -11,7 +11,7 @@ import java.io.{BufferedWriter, File, FileWriter}
 
 import scala.io.Source
 
-class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
+class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, val outputFileName: String = "scores.out") {
   require(numRuns > 0, "The number of runs must be greater than zero.")
   require(concurrency == 1, "Concurrency must be 1. Greater concurrency is not supported.")
 
@@ -19,7 +19,6 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
   //private var runs: List[GameState] = List.fill(numRuns)(new GameState)
   private var runsCompleted = false
   /*** public interface ***/
-  private val outputFileName = "scores.out" 
   var data: List[Tuple2[Int, Int]] = List()
   def startSimulation: Unit = {
     if (runsCompleted) {
@@ -119,8 +118,13 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1) {
 
 object Simulator {
   def main(args: Array[String]) {
+    var simulator: Simulator = null
+    if(args.isEmpty) {
+      simulator = new Simulator(numRuns = 100)
+    } else {
+      simulator = new Simulator(numRuns = 100, outputFileName = args(0))
+    }
     //val simulator = new Simulator(numRuns = 1000000000)
-    val simulator = new Simulator(numRuns = 100)
     simulator.startSimulation
     simulator.printScores
     simulator.printNumOfTurns
