@@ -11,23 +11,29 @@ import java.io.{BufferedWriter, File, FileWriter}
 
 import scala.io.Source
 
-class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, val outputFileName: String = "scores.out", val useDiskStorage: Boolean = false) {
+class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, var outputFilePrefix: String = "scores", val useDiskStorage: Boolean = false, val generateRandomFileName: Boolean = true) {
   require(numRuns > 0, "The number of runs must be greater than zero.")
   require(concurrency == 1, "Concurrency must be 1. Greater concurrency is not supported.")
 
   private val log: Logger = LogManager.getLogger(Simulator.getClass)
   private var runs: List[GameState] = List()
+  private var reporter: SimulationReporter = null
+  private var runsCompleted = false
+  final val DELIMITER = ", "
+  var outputFileName = "shouldNotBeUsedAsAFileName"
+  if (useDiskStorage && generateRandomFileName) {
+    outputFileName = s"$outputFilePrefix-${scala.util.Random.alphanumeric take 10 mkString("")}.out"
+  }
+  
+  log.info(s"Output file: $outputFileName")
   if (!useDiskStorage) {
     runs = List.fill(numRuns)(new GameState)
   }
-  private var reporter: SimulationReporter = null
   if (useDiskStorage) {
     reporter = new FromFileReporter(outputFileName)
   } else {
     reporter = new InMemoryReporter
   }
-  private var runsCompleted = false
-  final val DELIMITER = ", "
   /*** public interface ***/
   def startSimulation: Unit = {
     if (runsCompleted) {
@@ -221,7 +227,8 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, val outputFileNa
 
 object Simulator {
   val log: Logger = LogManager.getLogger(this.getClass)
-  val usage = "Usage: -n [numRuns] -f [outputFile] -d [true/false]"
+  //todo: better usage method with info about each switch
+  val usage = "Usage: -n [numRuns] -f [outputFile] -d [true/false] -rf [true/false]"
   def main(args: Array[String]) {
     type OptionMap = Map[Symbol, Any]
     // todo: have some way to print the usage string
@@ -236,6 +243,8 @@ object Simulator {
                                nextOption(map ++ Map('outputFile -> value.toString), tail)
         case "-d" :: value :: tail =>
                                nextOption(map ++ Map('diskStorage -> value.toBoolean), tail)
+        case "-rf" :: value :: tail =>
+                               nextOption(map ++ Map('randomlyGenerateFileName-> value.toBoolean), tail)
         case unknown :: tail => {
             log.info(s"Unknown option: $unknown")
             nextOption(map, tail)
@@ -248,7 +257,11 @@ object Simulator {
     //1727115
     //1000000000
     //val simulator = new Simulator(numRuns = 1000000000)
-    simulator = new Simulator(numRuns = options.getOrElse('numRuns, 100).asInstanceOf[Int], outputFileName = options.getOrElse('outputFile, "scores.out").asInstanceOf[String], useDiskStorage = options.getOrElse('diskStorage, false).asInstanceOf[Boolean])
+    simulator = new Simulator(
+      numRuns = options.getOrElse('numRuns, 100).asInstanceOf[Int],
+      outputFilePrefix = options.getOrElse('outputFile, "scores").asInstanceOf[String],
+      useDiskStorage = options.getOrElse('diskStorage, false).asInstanceOf[Boolean],
+      generateRandomFileName = options.getOrElse('randomlyGenerateFileName, true).asInstanceOf[Boolean])
     simulator.startSimulation
     simulator.printScores
     simulator.printNumOfTurns
