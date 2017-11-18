@@ -13,13 +13,31 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   require(hintTokenMax >= 0, "There must be 0 or more hint tokens.")
   require(redTokenMax >= 0, "There must be 0 or more red tokens.")
   require(numPlayers >= 3 && numPlayers <= 5, "There must be three to five players.")
-
   private val log: Logger = LogManager.getLogger(GameState.getClass)
+
+  /*** private interface to run a game through its paces ***/
+  var numOfTurns = 0
+  var currPlayer = 0
+  var deck: List[Card] = Deck.shuffleDeck(Deck.completeDeck)
+  var finalRound = false
+  var discardPile: List[Card] = List()
+  val numPlayersToInitialCardNum: Map[Int, Int] = Map(3 -> 5, 4 -> 4, 5 -> 4)
+  var players: List[ListBuffer[Card]] =
+    List.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
+  var fireworks: FireworksDisplay = new FireworksDisplay
+  var hints: ListBuffer[Hint] = ListBuffer()
+  var hintTokens: Int = hintTokenMax
+  var redTokens: Int = redTokenMax
+// val strategy = Strategy("Randomly play a card")
+  val strategy = Strategy("Hint, hint, play")
+
+  /* hint hint play strategy variables */
+  var hintedIndex = 0
+  var hintCounter = 0
+  var hinteeId = 0
 
   // todo: make strategy configurable
   case class Strategy(name: String)
-//  val strategy = Strategy("Randomly play a card")
-  val strategy = Strategy("Hint, hint, play")
   /*** public interface ***/
   def getCurrentScore = fireworks.currentScore
   def finishGame: GameState = {
@@ -38,19 +56,6 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     return this
   }
 
-  /*** private interface to run a game through its paces ***/
-  var numOfTurns = 0
-  var currPlayer = 0
-  var deck: List[Card] = Deck.shuffleDeck(Deck.completeDeck)
-  var finalRound = false
-  var discardPile: List[Card] = List()
-  val numPlayersToInitialCardNum: Map[Int, Int] = Map(3 -> 5, 4 -> 4, 5 -> 4)
-  var players: List[ListBuffer[Card]] =
-      List.fill(numPlayers)(drawXCards(numPlayersToInitialCardNum(numPlayers)))
-  var fireworks: FireworksDisplay = new FireworksDisplay
-  var hints: ListBuffer[Hint] = ListBuffer()
-  var hintTokens: Int = hintTokenMax
-  var redTokens: Int = redTokenMax
 
   private def drawXCards(x: Int): ListBuffer[Card] = {
     require(x >= 0)
@@ -102,9 +107,6 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
     Math.abs(r.nextInt) % players(id).size
   }
  
-  var hintedIndex = 0
-  var hintCounter = 0
-  var hinteeId = 0
   private def hintHintPlay(id: Int): Unit = {
     hintCounter match {
       case 0 => {

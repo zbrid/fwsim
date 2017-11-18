@@ -117,14 +117,33 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, val outputFileNa
 }
 
 object Simulator {
+  val log: Logger = LogManager.getLogger(this.getClass)
+  val usage = "Usage: -n [numRuns] -f [outputFile]"
   def main(args: Array[String]) {
-    var simulator: Simulator = null
-    if(args.isEmpty) {
-      simulator = new Simulator(numRuns = 100)
-    } else {
-      simulator = new Simulator(numRuns = 100, outputFileName = args(0))
+    type OptionMap = Map[Symbol, Any]
+    // todo: have some way to print the usage string
+    
+    def nextOption(map : OptionMap, list: List[String]) : OptionMap = {
+      def isSwitch(s : String) = (s(0) == '-')
+      list match {
+        case Nil => map
+        case "-n" :: value :: tail =>
+                               nextOption(map ++ Map('numRuns -> value.toInt), tail)
+        case "-f" :: value :: tail =>
+                               nextOption(map ++ Map('outputFile -> value.toString), tail)
+        case unknown :: tail => {
+            log.info(s"Unknown option: $unknown")
+            nextOption(map, tail)
+        }
+      }
     }
+    val options = nextOption(Map(), args.toList)
+    log.info(s"options: $options")
+    var simulator: Simulator = null
+    //1727115
+    //1000000000
     //val simulator = new Simulator(numRuns = 1000000000)
+    simulator = new Simulator(numRuns = options.getOrElse('numRuns, 100).asInstanceOf[Int], outputFileName = options.getOrElse('outputFile, "scores.out").asInstanceOf[String])
     simulator.startSimulation
     simulator.printScores
     simulator.printNumOfTurns
