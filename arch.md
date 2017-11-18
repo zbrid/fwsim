@@ -5,7 +5,7 @@ Class that holds many games. Can configure games to run, run them, then return t
 
 ## GameState
 
-This class is used by the GameInstance. It holds players, token counts, hands, and the fireworks display. It can walk through the game by telling each player to take its turn.
+This class is used by the Simulator. It holds players, token counts, hands, and the fireworks display. It can walk through the game by telling each player to take its turn.
 
 ## Card
 
