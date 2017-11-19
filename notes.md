@@ -6,13 +6,12 @@ An interesting problem I ran into is that the current num
     an easy solution in scala??
     * or run one at a time all the way through or run a few, print to a file, the run
     a few more
+    
     * maybe I could implement each of those and have the strategy be pluggable and then
     test them all against each other
     * Note: I guess reading in all the data only works if the data is small enough to fit
     into memory. What's the max I can fit into mem? Whats the difference in size between
     a GameState and a data tuple? (I'm pretty sure I could figure that out.)
-    * Would be nice to make a random file name per run so I don't have to worry about
-    overwriting data by accident...
 
     OMG I TOTALLY FIGURED OUT A REALLY INTERESTING THING TO DO:
 
@@ -23,6 +22,10 @@ An interesting problem I ran into is that the current num
   * Would be good to do some testing to determine at what point I should write results
   to a file and when I can have everything in memory.
   * Can do some testing to see the speed of the different strategies as well.
+
+  * Should make a thing to output performance info.
+    - need to know: strat used, in mem or disk, num of players, all that config, print at top of file, then list all the perf data in a certain format, then list all the scores and what not in a certain format.
+    ******- should start out with just perf data with the relevant configs logged.*****
   /*
     3 1s
     2 2s

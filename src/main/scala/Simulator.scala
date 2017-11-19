@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 import java.io.{BufferedWriter, File, FileWriter}
+import java.util.Calendar
 
 import scala.io.Source
 
@@ -26,6 +27,8 @@ class Simulator(
   private var runs: List[GameState] = List()
   private var reporter: SimulationReporter = null
   private var runsCompleted = false
+  private var startTs: Long = 0;
+  private var endTs: Long = 0;
   final val DELIMITER = ", "
   var outputFileName = "shouldNotBeUsedAsAFileName"
   if (useDiskStorage && generateRandomFileName) {
@@ -47,7 +50,8 @@ class Simulator(
       log.warn("The simulation is already complete. You have to clear the simulation before you can run it again.")
       return
     }
-
+    startTs = Calendar.getInstance.getTimeInMillis
+    log.info(s"Start timestamp: $startTs")
     if (useDiskStorage) {
       log.info("Running using disk storage.")
       log.info(s"Output file: $outputFileName")
@@ -68,6 +72,10 @@ class Simulator(
       runs.map(_.finishGame)
       reporter.asInstanceOf[InMemoryReporter].setGames(runs)
     }
+    endTs = Calendar.getInstance.getTimeInMillis
+    log.info(s"End timestamp: $endTs")
+    val totalMs: Double = endTs - startTs
+    log.info(s"Simulation completed in:\n${totalMs} milliseconds\n${totalMs / 1000} seconds\n${totalMs / 1000 / 60} minutes")
     runsCompleted = true
   }
   // I'm not 100% sure when this would be called, but I'm guessing it will be useful at some point.
@@ -77,8 +85,9 @@ class Simulator(
   // Would it be better to prevent reuse of the same object
   // for multiple simulations like Spark does with some contexts?
   def clearSimulations = {
-    //runs = List.fill(numRuns)(new GameState)
     runsCompleted = false
+    startTs = 0
+    endTs = 0
   }
   def printScores: Unit = {
     reporter.printScores
