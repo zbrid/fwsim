@@ -9,7 +9,12 @@ import scala.collection.mutable.ListBuffer
 
 // I wonder if I can use unapply in the player method doTurn. Like unwrap the different types
 // of moves until one fits like we do with StreamSources and StreamSinks in Airstream?
-class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boolean = true, numPlayers: Int = 4) {
+class GameState(hintTokenMax: Int = 5,
+    redTokenMax: Int = 3,
+    playWithTokens: Boolean = true, 
+    numPlayers: Int = 4,
+    strategy: String = "Hint, hint, play") {
+
   require(hintTokenMax >= 0, "There must be 0 or more hint tokens.")
   require(redTokenMax >= 0, "There must be 0 or more red tokens.")
   require(numPlayers >= 3 && numPlayers <= 5, "There must be three to five players.")
@@ -29,25 +34,24 @@ class GameState(hintTokenMax: Int = 5, redTokenMax: Int = 3, playWithTokens: Boo
   var hintTokens: Int = hintTokenMax
   var redTokens: Int = redTokenMax
 // val strategy = Strategy("Randomly play a card")
-  val strategy = Strategy("Hint, hint, play")
+ val strategyClass = Strategy(strategy)
 
   /* hint hint play strategy variables */
   var hintedIndex = 0
   var hintCounter = 0
   var hinteeId = 0
 
-  // todo: make strategy configurable
   case class Strategy(name: String)
   /*** public interface ***/
   def getCurrentScore = fireworks.currentScore
   def finishGame: GameState = {
     while(!gameOver) {
       numOfTurns += 1
-      strategy match {
+      strategyClass match {
         case Strategy("Randomly play a card") => randomlyPlayACard(currPlayer)
         case Strategy("Hint, hint, play") => hintHintPlay(currPlayer)
         case unknown => { 
-          log.error("Strategy named $unknown was not found.")
+          log.error(s"Strategy named $unknown was not found.")
           return this
         }
       }

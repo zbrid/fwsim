@@ -11,7 +11,14 @@ import java.io.{BufferedWriter, File, FileWriter}
 
 import scala.io.Source
 
-class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, var outputFilePrefix: String = "scores", val useDiskStorage: Boolean = false, val generateRandomFileName: Boolean = true) {
+class Simulator(
+    val numRuns: Int = 1,
+    val concurrency: Int = 1,
+    var outputFilePrefix: String = "scores", 
+    val useDiskStorage: Boolean = false,
+    val generateRandomFileName: Boolean = true,
+    val strategy: String = "Hint, hint, play") {
+
   require(numRuns > 0, "The number of runs must be greater than zero.")
   require(concurrency == 1, "Concurrency must be 1. Greater concurrency is not supported.")
 
@@ -27,7 +34,7 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, var outputFilePr
   
   log.info(s"Output file: $outputFileName")
   if (!useDiskStorage) {
-    runs = List.fill(numRuns)(new GameState)
+    runs = List.fill(numRuns)(new GameState(strategy = strategy))
   }
   if (useDiskStorage) {
     reporter = new FromFileReporter(outputFileName)
@@ -48,7 +55,7 @@ class Simulator(val numRuns: Int = 1, val concurrency: Int = 1, var outputFilePr
       val bw = new BufferedWriter(new FileWriter(file))
       
       0 until numRuns foreach(_ => {
-        val g = new GameState
+        val g = new GameState(strategy = strategy)
         g.finishGame
         bw.write(s"${g.getCurrentScore}$DELIMITER${g.numOfTurns}")
         bw.newLine
@@ -245,6 +252,8 @@ object Simulator {
                                nextOption(map ++ Map('diskStorage -> value.toBoolean), tail)
         case "-rf" :: value :: tail =>
                                nextOption(map ++ Map('randomlyGenerateFileName-> value.toBoolean), tail)
+        case "-s" :: value :: tail =>
+                               nextOption(map ++ Map('strategy -> value.toString), tail)
         case unknown :: tail => {
             log.info(s"Unknown option: $unknown")
             nextOption(map, tail)
@@ -261,7 +270,8 @@ object Simulator {
       numRuns = options.getOrElse('numRuns, 100).asInstanceOf[Int],
       outputFilePrefix = options.getOrElse('outputFile, "scores").asInstanceOf[String],
       useDiskStorage = options.getOrElse('diskStorage, false).asInstanceOf[Boolean],
-      generateRandomFileName = options.getOrElse('randomlyGenerateFileName, true).asInstanceOf[Boolean])
+      generateRandomFileName = options.getOrElse('randomlyGenerateFileName, true).asInstanceOf[Boolean],
+      strategy = options.getOrElse('strategy, "Hint, hint, play").asInstanceOf[String])
     simulator.startSimulation
     simulator.printScores
     simulator.printNumOfTurns
