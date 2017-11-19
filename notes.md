@@ -1,12 +1,17 @@
   TODO:
-An interesting problem I ran into is that the current num
-    of runs simulated can't all be held in memory at once, then run.
-
-    That'll be interesting to solve. Maybe doing things lazily would be
-    an easy solution in scala??
-    * or run one at a time all the way through or run a few, print to a file, the run
-    a few more
-    
+  
+    Easy tasks
+    * add an option to not print the score outcomes in the main method of simulator.
+    That way when you do runs with many game states the output you are interested
+    won't be hard to find before the score output.
+    Longer tasks
+    * Add use of the hint tokens to the hint, hint, play strategy
+    * is there something I can do with lazy evaluation that would help with the using
+    too much memory problem or not? seems like not since I'd eventually end up with all
+    the game states in memory in the end even if they start out being instantiated one
+    by one. that would help if i could delete a gamestate after being done with it, but
+    that's like the write to disk method except the final score data could perhaps be in
+    memory instead of writing to disk and reading later?
     * maybe I could implement each of those and have the strategy be pluggable and then
     test them all against each other
     * Note: I guess reading in all the data only works if the data is small enough to fit
