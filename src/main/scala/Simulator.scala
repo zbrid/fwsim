@@ -244,7 +244,7 @@ class Simulator(
 object Simulator {
   val log: Logger = LogManager.getLogger(this.getClass)
   //todo: better usage method with info about each switch
-  val usage = "Usage: -n [numRuns] -f [outputFile] -d [true/false] -rf [true/false]"
+  val usage = "Usage: -n [numRuns] -f [outputFile] -d [true/false] -rf [true/false] -p [true/false]"
   def main(args: Array[String]) {
     type OptionMap = Map[Symbol, Any]
     // todo: have some way to print the usage string
@@ -263,6 +263,8 @@ object Simulator {
                                nextOption(map ++ Map('randomlyGenerateFileName-> value.toBoolean), tail)
         case "-s" :: value :: tail =>
                                nextOption(map ++ Map('strategy -> value.toString), tail)
+        case "-p" :: value :: tail =>
+                               nextOption(map ++ Map('print -> value.toString), tail)
         case unknown :: tail => {
             log.info(s"Unknown option: $unknown")
             nextOption(map, tail)
@@ -282,9 +284,11 @@ object Simulator {
       generateRandomFileName = options.getOrElse('randomlyGenerateFileName, true).asInstanceOf[Boolean],
       strategy = options.getOrElse('strategy, "Hint, hint, play").asInstanceOf[String])
     simulator.startSimulation
-    simulator.printScores
-    simulator.printNumOfTurns
-    println(simulator.getScores.max)
-    println(simulator.getNumOfTurns.max)
+    if (options.getOrElse('print, "true").asInstanceOf[String].equals("true")) {
+      simulator.printScores
+      simulator.printNumOfTurns
+    }
+    println(s"Maximum score: ${simulator.getScores.max}")
+    println(s"Max number of scores: ${simulator.getNumOfTurns.max}")
   }
 }
