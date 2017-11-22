@@ -289,6 +289,6 @@ object Simulator {
       simulator.printNumOfTurns
     }
     println(s"Maximum score: ${simulator.getScores.max}")
-    println(s"Max number of scores: ${simulator.getNumOfTurns.max}")
+    println(s"Max number of turns: ${simulator.getNumOfTurns.max}")
   }
 }

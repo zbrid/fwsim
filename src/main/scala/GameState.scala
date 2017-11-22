@@ -76,11 +76,11 @@ class GameState(hintTokenMax: Int = 5,
     2. Add to discard pile.
     3. Draw a card from the deck for player with given id.
   */
-  private def discardCard(id: Int, index: Int): Unit = {
+  private def discardCard(id: Int, index: Int, discardPlay: Boolean = false): Unit = {
     discardPile = players(id)(index) :: discardPile
-    if (!deck.isEmpty) {
-      players(id)(index) = deck.head
-      deck = deck.tail
+    players(id).update(index, drawCard)
+    if (discardPlay && hintTokens < hintTokenMax) {
+      hintTokens += 1
     }
   }
   
@@ -92,7 +92,11 @@ class GameState(hintTokenMax: Int = 5,
 
   private def addToFireworksDisplay(card: Card): Unit = {
     val success = fireworks.addToFireworksDisplay(card)
-    if (!success) { redTokens -= 1 }
+    if (!success) {
+      redTokens -= 1
+    } else {
+      hintTokens += 1
+    }
   }
 
   /*
@@ -110,24 +114,34 @@ class GameState(hintTokenMax: Int = 5,
     val r = scala.util.Random
     Math.abs(r.nextInt) % players(id).size
   }
- 
+  // todo: decide whether to randomly play a card if
+  // the person two turns away has no playable cards, but the
+  // person three or four turns away does
   private def hintHintPlay(id: Int): Unit = {
-    hintCounter match {
-      case 0 => {
-        hinteeId = nextPlayer(nextPlayer(id)) 
-        hintedIndex = getBestCard(hinteeId)
-        hintCounter += 1
+    // if we have enough hint tokens to complete a full hinting
+    if ((hintCounter == 0 && hintTokens >= 2)
+          || (hintCounter == 1 && hintTokens >= 1)
+          || (hintCounter == 2)
+        ) {
+      hintCounter match {
+        case 0 => {
+          hinteeId = nextPlayer(nextPlayer(id)) 
+          hintedIndex = getBestCard(hinteeId)
+          hintCounter += 1
+        }
+        case 1 => { 
+          hintCounter += 1
+        }
+        case 2 => {
+          addToFireworksDisplay(players(id)(hintedIndex))
+          players(id).update(hintedIndex, drawCard)
+          hintCounter = 0
+        }
       }
-      case 1 => { 
-        hintCounter += 1
-      }
-      case 2 => {
-        addToFireworksDisplay(players(id)(hintedIndex))
-        players(id).update(hintedIndex, drawCard)
-        hintCounter = 0
-      }
+    } else {
+      val index = randomCardIndex(id)
+      discardCard(id, index, true)
     }
-
     def getBestCard(id: Int): Int = {
       def max(c1: Tuple2[Card, Int], c2: Tuple2[Card, Int]): Tuple2[Card, Int] = if (c1._1.num >= c2._1.num) c1 else c2
       val playables = players(id).zipWithIndex
