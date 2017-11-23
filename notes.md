@@ -1,11 +1,8 @@
   TODO:
   
     Easy tasks
-    * add an option to not print the score outcomes in the main method of simulator.
-    That way when you do runs with many game states the output you are interested
-    won't be hard to find before the score output.
+    * None
     Longer tasks
-    * Add use of the hint tokens to the hint, hint, play strategy
     * is there something I can do with lazy evaluation that would help with the using
     too much memory problem or not? seems like not since I'd eventually end up with all
     the game states in memory in the end even if they start out being instantiated one
@@ -18,17 +15,17 @@
     into memory. What's the max I can fit into mem? Whats the difference in size between
     a GameState and a data tuple? (I'm pretty sure I could figure that out.)
 
-    OMG I TOTALLY FIGURED OUT A REALLY INTERESTING THING TO DO:
+OMG I TOTALLY FIGURED OUT A REALLY INTERESTING THING TO DO:
 
-   I wonder if I could make the data spillover instead of always writing
-   to file. Can I use spillover to make sure I don't hit heap limits. This is like
-   what Spark does when you enable that option.
+I wonder if I could make the data spillover instead of always writing
+to file. Can I use spillover to make sure I don't hit heap limits. This is like
+what Spark does when you enable that option.
 
-  * Would be good to do some testing to determine at what point I should write results
+* Would be good to do some testing to determine at what point I should write results
   to a file and when I can have everything in memory.
-  * Can do some testing to see the speed of the different strategies as well.
+* Can do some testing to see the speed of the different strategies as well.
 
-  * Should make a thing to output performance info.
+* Should make a thing to output performance info.
     - need to know: strat used, in mem or disk, num of players, all that config, print at top of file, then list all the perf data in a certain format, then list all the scores and what not in a certain format.
     ******- should start out with just perf data with the relevant configs logged.*****
   /*
