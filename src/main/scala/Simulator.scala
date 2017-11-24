@@ -21,7 +21,7 @@ class Simulator(
     val strategy: String = "Hint, hint, play") {
 
   require(numRuns > 0, "The number of runs must be greater than zero.")
-  require(concurrency == 1, "Concurrency must be 1. Greater concurrency is not supported.")
+  require(concurrency >= 1, s"Concurrency must be greater than or equal to one. Found concurrency = $concurrency")
 
   private val log: Logger = LogManager.getLogger(Simulator.getClass)
   private var runs: List[GameState] = List()
@@ -52,25 +52,36 @@ class Simulator(
     }
     startTs = Calendar.getInstance.getTimeInMillis
     log.info(s"Start timestamp: $startTs")
-    if (useDiskStorage) {
-      log.info("Running using disk storage.")
-      log.info(s"Output file: $outputFileName")
-      val file = new File(outputFileName)
-      val bw = new BufferedWriter(new FileWriter(file))
-      
-      0 until numRuns foreach(_ => {
-        val g = new GameState(strategy = strategy)
-        g.finishGame
-        bw.write(s"${g.getCurrentScore}$DELIMITER${g.numOfTurns}")
-        bw.newLine
-      })
-      bw.close
+    if (concurrency > 1) {
+      log.info(s"Running with concurrency of $concurrency")
+      log.error("Concurrency mode not yet implemented.")
+      if (useDiskStorage) {
+
+      } else {
+
+      }
     } else {
-      log.info("Running using in memory storage.")
-      //todo: Is asInstanceOf the only way to resolve this issue?
-      // Is there a more natural way to do this?
-      runs.map(_.finishGame)
-      reporter.asInstanceOf[InMemoryReporter].setGames(runs)
+      log.info("Running with a single thread.")
+      if (useDiskStorage) {
+        log.info("Running using disk storage.")
+        log.info(s"Output file: $outputFileName")
+        val file = new File(outputFileName)
+        val bw = new BufferedWriter(new FileWriter(file))
+        
+        0 until numRuns foreach(_ => {
+          val g = new GameState(strategy = strategy)
+          g.finishGame
+          bw.write(s"${g.getCurrentScore}$DELIMITER${g.numOfTurns}")
+          bw.newLine
+        })
+        bw.close
+      } else {
+        log.info("Running using in memory storage.")
+        //todo: Is asInstanceOf the only way to resolve this issue?
+        // Is there a more natural way to do this?
+        runs.map(_.finishGame)
+        reporter.asInstanceOf[InMemoryReporter].setGames(runs)
+      }
     }
     endTs = Calendar.getInstance.getTimeInMillis
     log.info(s"End timestamp: $endTs")
