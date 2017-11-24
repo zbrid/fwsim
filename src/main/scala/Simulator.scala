@@ -255,7 +255,7 @@ class Simulator(
 object Simulator {
   val log: Logger = LogManager.getLogger(this.getClass)
   //todo: better usage method with info about each switch
-  val usage = "Usage: -n [numRuns] -f [outputFile] -d [true/false] -rf [true/false] -p [true/false]"
+  val usage = "Usage: -n [numRuns] -f [outputFile] -d [true/false] -rf [true/false] -p [true/false] -c [number of threads]"
   def main(args: Array[String]) {
     type OptionMap = Map[Symbol, Any]
     // todo: have some way to print the usage string
@@ -276,6 +276,8 @@ object Simulator {
                                nextOption(map ++ Map('strategy -> value.toString), tail)
         case "-p" :: value :: tail =>
                                nextOption(map ++ Map('print -> value.toString), tail)
+        case "-c" :: value :: tail =>
+                               nextOption(map ++ Map('concurrency-> value.toInt), tail)
         case unknown :: tail => {
             log.info(s"Unknown option: $unknown")
             nextOption(map, tail)
@@ -293,7 +295,8 @@ object Simulator {
       outputFilePrefix = options.getOrElse('outputFile, "scores").asInstanceOf[String],
       useDiskStorage = options.getOrElse('diskStorage, false).asInstanceOf[Boolean],
       generateRandomFileName = options.getOrElse('randomlyGenerateFileName, true).asInstanceOf[Boolean],
-      strategy = options.getOrElse('strategy, "Hint, hint, play").asInstanceOf[String])
+      strategy = options.getOrElse('strategy, "Hint, hint, play").asInstanceOf[String],
+      concurrency = options.getOrElse('concurrency, 1).asInstanceOf[Int])
     simulator.startSimulation
     if (options.getOrElse('print, "true").asInstanceOf[String].equals("true")) {
       simulator.printScores
