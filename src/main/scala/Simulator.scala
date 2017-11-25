@@ -99,6 +99,7 @@ class Simulator(
     runsCompleted = false
     startTs = 0
     endTs = 0
+    runs = List()
   }
   def printScores: Unit = {
     reporter.printScores
