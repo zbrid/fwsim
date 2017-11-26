@@ -114,9 +114,7 @@ class GameState(hintTokenMax: Int = 5,
     val r = scala.util.Random
     Math.abs(r.nextInt) % players(id).size
   }
-  // todo: decide whether to randomly play a card if
-  // the person two turns away has no playable cards, but the
-  // person three or four turns away does
+
   private def hintHintPlay(id: Int): Unit = {
     // if we have enough hint tokens to complete a full hinting
     if ((hintCounter == 0 && hintTokens >= 2)
@@ -156,4 +154,17 @@ class GameState(hintTokenMax: Int = 5,
   // next strat: get the best playable card of player
   // two people ahead, if none, randomly play a card,
   // else give that hint
+  private def sophisticatedHintHintPlay(id: Int) = {
+
+    def getBestCard(id: Int): Option[Int] = {
+      def max(c1: Tuple2[Card, Int], c2: Tuple2[Card, Int]): Tuple2[Card, Int] = if (c1._1.num >= c2._1.num) c1 else c2
+      val playables = players(id).zipWithIndex
+                 .filter(x => fireworks.isPlayable(x._1))
+      if (playables.isEmpty) {
+        None
+      } else {
+        Some(playables.reduce(max(_,_))._2)
+      }
+    }
+  }
 }
